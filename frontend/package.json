@@ -1,20 +1,20 @@
 {
-  "name": "robot-control-frontend",
+  "name": "robot-control-uniapp",
   "version": "1.0.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev:h5": "vite",
+    "build:h5": "vite build"
   },
   "dependencies": {
     "vue": "^3.4.0",
-    "three": "^0.160.0",
-    "axios": "^1.6.0"
+    "@dcloudio/uni-app": "3.0.0-alpha-5010320260611001",
+    "@dcloudio/uni-h5": "3.0.0-alpha-5010320260611001",
+    "@dcloudio/uni-components": "3.0.0-alpha-5010320260611001"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^4.5.0",
+    "@dcloudio/uni-app-plus": "3.0.0-alpha-5010320260611001",
+    "@dcloudio/vite-plugin-uni": "3.0.0-alpha-5010320260611001",
     "vite": "^5.0.0"
   }
 }

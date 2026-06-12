@@ -1,0 +1,28 @@
+{
+  "name": "Robot Control System",
+  "appid": "__UNI__ROBOT_CTRL",
+  "description": "MuJoCo robot control system with real-time simulation",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "app-plus": {
+    "usingComponents": true,
+    "nvueStyleCompiler": "uni-app",
+    "compilerVersion": 3,
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    },
+    "modules": {}
+  },
+  "h5": {
+    "router": {
+      "mode": "hash"
+    },
+    "devServer": {
+      "port": 5174
+    }
+  }
+}

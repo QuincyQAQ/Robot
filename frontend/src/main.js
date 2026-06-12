@@ -1,4 +1,7 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import App from './App'
+import { createSSRApp } from 'vue'
 
-createApp(App).mount('#app')
+export function createApp() {
+  const app = createSSRApp(App)
+  return { app }
+}
