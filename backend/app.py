@@ -134,6 +134,40 @@ def start_gait(gait_type):
     return jsonify({"status": "ok", "gait": gait_type})
 
 
+# --- Camera Control ---
+
+@app.route("/api/robot/camera", methods=["POST"])
+def camera_control():
+    data = request.get_json(silent=True)
+    if data is None:
+        return jsonify({"status": "error", "message": "Invalid JSON"}), 400
+
+    action = data.get("action", "")
+    step = float(data.get("step", 0.15))
+
+    valid_actions = ("left", "right", "up", "down", "zoom_in", "zoom_out")
+    if action not in valid_actions:
+        return jsonify({"status": "error", "message": f"Unknown action: {action}"}), 400
+
+    sim.move_camera(action, step)
+    info = sim.get_camera_info()
+    return jsonify({"status": "ok", "camera": info})
+
+
+@app.route("/api/robot/camera", methods=["GET"])
+def get_camera():
+    return jsonify(sim.get_camera_info())
+
+
+@app.route("/api/robot/camera/switch/<int:preset>", methods=["POST"])
+def switch_camera(preset):
+    if preset not in (1, 2):
+        return jsonify({"status": "error", "message": "preset must be 1 or 2"}), 400
+    sim.switch_camera_preset(preset)
+    info = sim.get_camera_info()
+    return jsonify({"status": "ok", "camera": info})
+
+
 # --- WebSocket Endpoints ---
 
 @sock.route("/ws/robot/state")

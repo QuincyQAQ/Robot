@@ -46,6 +46,60 @@
           </view>
         </view>
 
+        <!-- Camera Control -->
+        <view class="panel">
+          <text class="panel-title">📷 Camera（{{ activePreset === 1 ? '视角一' : '视角二' }}）</text>
+          <view class="camera-switch">
+            <view
+              :class="['switch-btn', activePreset === 1 ? 'active' : '']"
+              @click="switchCamera(1)"
+            >
+              <text>视角一</text>
+            </view>
+            <view
+              :class="['switch-btn', activePreset === 2 ? 'active' : '']"
+              @click="switchCamera(2)"
+            >
+              <text>视角二</text>
+            </view>
+          </view>
+          <view class="camera-controls">
+            <!-- 方向键 -->
+            <view class="camera-dpad">
+              <view class="camera-row">
+                <view class="camera-btn" @touchstart="startCamera('up')" @touchend="stopCamera" @mousedown="startCamera('up')" @mouseup="stopCamera" @mouseleave="stopCamera">
+                  <text>▲</text>
+                </view>
+              </view>
+              <view class="camera-row">
+                <view class="camera-btn" @touchstart="startCamera('left')" @touchend="stopCamera" @mousedown="startCamera('left')" @mouseup="stopCamera" @mouseleave="stopCamera">
+                  <text>◀</text>
+                </view>
+                <view class="camera-btn" @click="moveCamera('reset')">
+                  <text>⊙</text>
+                </view>
+                <view class="camera-btn" @touchstart="startCamera('right')" @touchend="stopCamera" @mousedown="startCamera('right')" @mouseup="stopCamera" @mouseleave="stopCamera">
+                  <text>▶</text>
+                </view>
+              </view>
+              <view class="camera-row">
+                <view class="camera-btn" @touchstart="startCamera('down')" @touchend="stopCamera" @mousedown="startCamera('down')" @mouseup="stopCamera" @mouseleave="stopCamera">
+                  <text>▼</text>
+                </view>
+              </view>
+            </view>
+            <!-- 缩放键 -->
+            <view class="camera-zoom">
+              <view class="camera-btn zoom-btn" @touchstart="startCamera('zoom_in')" @touchend="stopCamera" @mousedown="startCamera('zoom_in')" @mouseup="stopCamera" @mouseleave="stopCamera">
+                <text>🔍+</text>
+              </view>
+              <view class="camera-btn zoom-btn" @touchstart="startCamera('zoom_out')" @touchend="stopCamera" @mousedown="startCamera('zoom_out')" @mouseup="stopCamera" @mouseleave="stopCamera">
+                <text>🔍−</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
         <view class="panel">
           <text class="panel-title">📊 Robot State</text>
           <view class="state-info">
@@ -105,6 +159,9 @@ export default {
       ],
       // Go2 official keyframe: hip=0, thigh=0.9, calf=-1.8
       jointValues: [0, 0.9, -1.8, 0, 0.9, -1.8, 0, 0.9, -1.8, 0, 0.9, -1.8],
+      // Camera control
+      activePreset: 1,
+      cameraInterval: null,
     }
   },
   onLoad() {
@@ -113,6 +170,7 @@ export default {
     this.connectControlSocket()
   },
   onUnload() {
+    this.stopCamera()
     if (this.stateSocketTask) this.stateSocketTask.close()
     if (this.renderSocketTask) this.renderSocketTask.close()
     if (this.controlSocketTask) this.controlSocketTask.close()
@@ -249,6 +307,38 @@ export default {
           fail: reject
         })
       })
+    },
+
+    // --- Camera Control ---
+
+    async switchCamera(preset) {
+      const res = await this._request('POST', '/api/robot/camera/switch/' + preset)
+      if (res.statusCode === 200) {
+        this.activePreset = preset
+      }
+    },
+
+    moveCamera(action) {
+      if (action === 'reset') {
+        this._request('POST', '/api/robot/reset')
+        return
+      }
+      this._request('POST', '/api/robot/camera', { action: action, step: 0.15 })
+    },
+
+    startCamera(action) {
+      // Continuous camera control while button is held
+      this.moveCamera(action)
+      this.cameraInterval = setInterval(() => {
+        this.moveCamera(action)
+      }, 100) // Send command every 100ms
+    },
+
+    stopCamera() {
+      if (this.cameraInterval) {
+        clearInterval(this.cameraInterval)
+        this.cameraInterval = null
+      }
     },
 
     // --- Helpers ---
@@ -436,6 +526,90 @@ export default {
 .presets .btn {
   flex: 1;
   min-width: 70px;
+}
+
+/* Camera controls */
+.camera-switch {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.switch-btn {
+  flex: 1;
+  padding: 6px 0;
+  border-radius: 4px;
+  background: #0f3460;
+  color: #aaa;
+  text-align: center;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.switch-btn.active {
+  background: #1a5276;
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.switch-btn:hover {
+  background: #1a5276;
+}
+
+.camera-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.camera-dpad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.camera-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.camera-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background: #0f3460;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+  font-size: 18px;
+}
+
+.camera-btn:hover {
+  background: #1a5276;
+}
+
+.camera-btn:active {
+  background: #2a6a9e;
+  transform: scale(0.95);
+}
+
+.camera-zoom {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+}
+
+.zoom-btn {
+  flex: 1;
+  width: auto;
+  font-size: 14px;
 }
 
 .state-info {

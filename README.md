@@ -23,9 +23,17 @@ Migrated from FastAPI + Vue/Vite to **Flask + UniApp** for cross-platform suppor
 - 🐕 **Unitree Go2** - 12-DOF quadruped with PD torque control
 - 🎮 **8 Gait Patterns** - Stand, Sit, Trot, Pace, Bound, Crawl, Jump, Dance
 - 🎚️ **Joint Sliders** - Real-time individual joint control
-- 📷 **Camera Control** - Rotate, zoom, reset view
+- 📷 **Camera Control** - Orbit rotate, zoom, dual-preset switching, continuous zoom
 - ⚡ **60fps Rendering** - GPU-accelerated offscreen rendering streamed via WebSocket
 - 📱 **Cross-Platform** - UniApp supports H5, iOS, Android, and mini-programs
+
+## v1.4 Changes
+
+- **📷 Dual Camera Presets**: 视角一（custom close-up）↔ 视角二（MuJoCo default isometric）
+- Each preset maintains independent azimuth/elevation/distance state
+- **Continuous zoom**: Long-press zoom buttons for smooth zoom, not one-shot
+- **D-pad orbit control**: Direction keys (▲▼◀▶) + zoom (+/−) with long-press support
+- Camera API: `POST /api/robot/camera` for movement, `POST /api/robot/camera/switch/{1,2}` for preset switching
 
 ## v1.3 Changes
 
@@ -126,6 +134,9 @@ robot-control-system-flask/
 | POST | `/api/robot/control` | Send joint positions/controls |
 | POST | `/api/robot/gait/{type}` | Start gait (stand/sit/trot/pace/bound/crawl/jump/dance) |
 | POST | `/api/robot/gait/stop` | Stop gait |
+| GET | `/api/robot/camera` | Get current camera state |
+| POST | `/api/robot/camera` | Move camera (action: left/right/up/down/zoom_in/zoom_out) |
+| POST | `/api/robot/camera/switch/{1,2}` | Switch camera preset |
 | WS | `/ws/robot/state` | Real-time state stream |
 | WS | `/ws/robot/render` | Real-time GPU render stream |
 | WS | `/ws/robot/control` | Real-time joint control |

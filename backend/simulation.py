@@ -29,7 +29,16 @@ class MujocoSimulator:
         self._target = self.initial_qpos[7:].copy()
         
         self._renderer = None
-        
+
+        # Dual camera presets (azimuth/elevation in radians, distance in meters)
+        # 视角一: custom view (closer side angle)
+        # 视角二: MuJoCo default (classic isometric-like view)
+        self._camera_presets = {
+            1: {"azimuth": 0.0,   "elevation": -0.35,  "distance": 3.0},   # 视角一 (my defaults)
+            2: {"azimuth": 90.0,  "elevation": -45.0,  "distance": 2.0},   # 视角二 (MuJoCo original)
+        }
+        self._active_preset = 1   # currently active camera preset
+
         self._gait_type = None
         self._gait_start_time = 0
         self._use_gait = False
@@ -166,8 +175,49 @@ class MujocoSimulator:
             self.model.vis.global_.offheight = height
             self.model.vis.quality.offsamples = 2
             self._renderer = mujoco.Renderer(self.model, height, width)
-        self._renderer.update_scene(self.data)
+
+        # Create MjvCamera using the active preset
+        p = self._camera_presets[self._active_preset]
+        cam = mujoco.MjvCamera()
+        cam.azimuth = p["azimuth"]
+        cam.elevation = p["elevation"]
+        cam.distance = p["distance"]
+        cam.lookat = self.data.body('base').xpos.copy() if self.model.nbody > 1 else [0, 0, 0.25]
+        cam.type = mujoco.mjtCamera.mjCAMERA_FREE
+
+        self._renderer.update_scene(self.data, camera=cam)
         return self._renderer.render()
+
+    def move_camera(self, action: str, step: float = 0.15):
+        """Move camera: left, right, up, down, zoom_in, zoom_out (affects active preset)"""
+        p = self._camera_presets[self._active_preset]
+        if action == "left":
+            p["azimuth"] -= step
+        elif action == "right":
+            p["azimuth"] += step
+        elif action == "up":
+            p["elevation"] += step * 0.5
+        elif action == "down":
+            p["elevation"] -= step * 0.5
+        elif action == "zoom_in":
+            p["distance"] = max(0.3, p["distance"] - step)
+        elif action == "zoom_out":
+            p["distance"] = min(20.0, p["distance"] + step)
+
+    def switch_camera_preset(self, preset: int):
+        """Switch to preset 1 or 2"""
+        if preset in (1, 2):
+            self._active_preset = preset
+
+    def get_camera_info(self) -> Dict:
+        p = self._camera_presets[self._active_preset]
+        return {
+            "active_preset": self._active_preset,
+            "presets": self._camera_presets,
+            "azimuth": p["azimuth"],
+            "elevation": p["elevation"],
+            "distance": p["distance"],
+        }
             
     def get_robot_info(self) -> Dict:
         return {
