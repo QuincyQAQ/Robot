@@ -75,23 +75,23 @@ export default {
       stateWs: null,
       renderWs: null,
       controlWs: null,
-      // Official Unitree Go1 joint configuration: 12 position-controlled motors
-      // Order: FR_abd,FR_thigh,FR_calf, FL_abd,FL_thigh,FL_calf, RR_abd,RR_thigh,RR_calf, RL_abd,RL_thigh,RL_calf
+      // Unitree Go2 joint ordering: FL_abd,FL_thigh,FL_calf, FR_abd,FR_thigh,FR_calf,
+      //                           RL_abd,RL_thigh,RL_calf, RR_abd,RR_thigh,RR_calf
       joints: [
-        { name: 'FR Hip Abd', min: -0.863, max: 0.863 },
-        { name: 'FR Thigh', min: -0.686, max: 4.501 },
-        { name: 'FR Calf', min: -2.818, max: -0.888 },
         { name: 'FL Hip Abd', min: -0.863, max: 0.863 },
         { name: 'FL Thigh', min: -0.686, max: 4.501 },
         { name: 'FL Calf', min: -2.818, max: -0.888 },
-        { name: 'RR Hip Abd', min: -0.863, max: 0.863 },
-        { name: 'RR Thigh', min: -0.686, max: 4.501 },
-        { name: 'RR Calf', min: -2.818, max: -0.888 },
+        { name: 'FR Hip Abd', min: -0.863, max: 0.863 },
+        { name: 'FR Thigh', min: -0.686, max: 4.501 },
+        { name: 'FR Calf', min: -2.818, max: -0.888 },
         { name: 'RL Hip Abd', min: -0.863, max: 0.863 },
         { name: 'RL Thigh', min: -0.686, max: 4.501 },
         { name: 'RL Calf', min: -2.818, max: -0.888 },
+        { name: 'RR Hip Abd', min: -0.863, max: 0.863 },
+        { name: 'RR Thigh', min: -0.686, max: 4.501 },
+        { name: 'RR Calf', min: -2.818, max: -0.888 },
       ],
-      // Home pose (standing): all abductions=0, thighs=0.9, calves=-1.8
+      // Go2 official keyframe: hip=0, thigh=0.9, calf=-1.8
       jointValues: [0, 0.9, -1.8, 0, 0.9, -1.8, 0, 0.9, -1.8, 0, 0.9, -1.8],
     }
   },

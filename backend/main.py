@@ -34,10 +34,11 @@ _physics_task = None
 
 
 async def _physics_loop():
-    """Run physics at ~60fps in the asyncio event loop."""
+    """Run physics with PD control. 4 steps per 8ms = 1x realtime."""
     while True:
-        sim.step()
-        await asyncio.sleep(0.016)
+        for _ in range(4):
+            sim.step()
+        await asyncio.sleep(0.008)
 
 
 @app.on_event("startup")
